@@ -4,20 +4,21 @@ import 'package:serinus/serinus.dart';
 import './box.dart';
 
 class AppController extends Controller {
-  AppController() : super(path: '/') {
-    on(Route.get('/viewString'), (RequestContext context) {
-      return ViewString(
-          'Hello, {{ name | upcase }}! Your items are: {% for item in items %}{{ item }}{% unless forloop.last %}, {% endunless %}{% endfor %}.',
-          {
-            'name': 'Alice',
-            'items': ['apple', 'banana', 'cherry']
-          });
+  AppController() : super('/') {
+    on(Route.get('/viewString'), (RequestContext context) async {
+      return View.string(
+        'Hello, {{ name | upcase }}! Your items are: {% for item in items %}{{ item }}{% unless forloop.last %}, {% endunless %}{% endfor %}.',
+        {
+          'name': 'Alice',
+          'items': ['apple', 'banana', 'cherry'],
+        },
+      );
     });
-    on(Route.get('/view'), (RequestContext context) {
-      return View('view', {});
+    on(Route.get('/view'), (RequestContext context) async {
+      return View.template('view', {});
     });
-    on(Route.get('/custom-tags'), (RequestContext context) {
-      return View('custom-tags', {
+    on(Route.get('/custom-tags'), (RequestContext context) async {
+      return View.template('custom-tags', {
         'name': 'Alice',
         'age': 30,
         'items': [1, 2, 3, 4, 5],
@@ -41,8 +42,8 @@ Future<void> main(List<String> arguments) async {
   final application = await serinus.createApplication(entrypoint: AppModule());
 
   application.viewEngine = LiquifyEngine(
-      root:
-          FileSystemRoot('templates', notFoundCallback: () => '404 Not Found'));
+    root: FileSystemRoot('templates', notFoundCallback: () => '404 Not Found'),
+  );
 
   application.serve();
 }
